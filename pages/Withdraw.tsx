@@ -3,11 +3,7 @@ import React, { useState } from 'react';
 import { 
   ArrowUpRight, 
   History, 
-  AlertCircle, 
-  CheckCircle2, 
-  Clock, 
-  XCircle,
-  ShieldCheck 
+  AlertCircle 
 } from 'lucide-react';
 import { User, Transaction } from '../types';
 import { MIN_WITHDRAWAL } from '../constants.tsx';
@@ -44,7 +40,6 @@ const Withdraw: React.FC<{ user: User, setUser: React.Dispatch<React.SetStateAct
     }
 
     setIsSubmitting(true);
-    // Simulate API call
     setTimeout(() => {
       setUser(prev => ({ ...prev, balance: prev.balance - withdrawAmount }));
       setIsSubmitting(false);
@@ -58,7 +53,7 @@ const Withdraw: React.FC<{ user: User, setUser: React.Dispatch<React.SetStateAct
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-white mb-2">سحب الأرباح</h1>
-        <p className="text-slate-400">حول أرباحك إلى محفظتك الشخصية بسهولة وأمان.</p>
+        <p className="text-slate-400">حول أرباحك بالدولار الأمريكي إلى محفظتك الرقمية.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -69,27 +64,27 @@ const Withdraw: React.FC<{ user: User, setUser: React.Dispatch<React.SetStateAct
               <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                 <ArrowUpRight size={20} />
               </div>
-              <h2 className="text-xl font-bold text-white">طلب سحب جديد</h2>
+              <h2 className="text-xl font-bold text-white">طلب سحب جديد ($)</h2>
             </div>
 
             <form onSubmit={handleWithdraw} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-2 mr-1">الرصيد المتاح</label>
-                  <div className="bg-slate-950 border border-slate-800 p-4 rounded-2xl font-black text-emerald-500 font-mono text-xl">
+                  <div className="bg-slate-950 border border-slate-800 p-4 rounded-2xl font-black text-emerald-400 font-mono text-xl">
                     ${user.balance.toFixed(2)}
                   </div>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-500 uppercase mb-2 mr-1">طريقة السحب</label>
                   <div className="bg-slate-950 border border-slate-800 p-4 rounded-2xl font-bold text-slate-300">
-                    USDT (Crypto)
+                    Crypto (USDT)
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 mr-1">المبلغ المراد سحبه</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-2 mr-1">المبلغ المراد سحبه ($)</label>
                 <div className="relative">
                   <input 
                     type="number" 
@@ -126,10 +121,10 @@ const Withdraw: React.FC<{ user: User, setUser: React.Dispatch<React.SetStateAct
                 />
               </div>
 
-              <div className="bg-red-500/5 border border-red-500/10 p-4 rounded-2xl flex gap-3">
-                <AlertCircle className="text-red-500 shrink-0" size={18} />
+              <div className="bg-amber-500/5 border border-amber-500/10 p-4 rounded-2xl flex gap-3">
+                <AlertCircle className="text-amber-500 shrink-0" size={18} />
                 <p className="text-[11px] text-slate-400 leading-relaxed">
-                  الرجاء التأكد من صحة العنوان والشبكة. أي خطأ في البيانات سيؤدي لضياع المبلغ. تستغرق المراجعة اليدوية من ساعة إلى 24 ساعة كحد أقصى.
+                  تأكد من اختيار الشبكة الصحيحة لتجنب فقدان الأموال.
                 </p>
               </div>
 
@@ -142,16 +137,6 @@ const Withdraw: React.FC<{ user: User, setUser: React.Dispatch<React.SetStateAct
               </button>
             </form>
           </div>
-
-          <div className="bg-slate-900 border border-slate-800 p-6 rounded-3xl flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500">
-              <ShieldCheck size={24} />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-white">نظام سحب آمن</p>
-              <p className="text-xs text-slate-400">جميع عمليات السحب تخضع للمراجعة اليدوية لضمان حماية أموال المستخدمين.</p>
-            </div>
-          </div>
         </div>
 
         {/* Withdrawal History */}
@@ -163,35 +148,26 @@ const Withdraw: React.FC<{ user: User, setUser: React.Dispatch<React.SetStateAct
             <h2 className="text-xl font-bold text-white">سجل السحوبات</h2>
           </div>
           <div className="flex-1 overflow-x-auto">
-            {MOCK_WITHDRAWALS.length > 0 ? (
-              <table className="w-full text-right">
-                <thead>
-                  <tr className="bg-slate-800/30">
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">التاريخ</th>
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">المبلغ</th>
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">الشبكة</th>
-                    <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">الحالة</th>
+            <table className="w-full text-right">
+              <thead>
+                <tr className="bg-slate-800/30">
+                  <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">التاريخ</th>
+                  <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">المبلغ</th>
+                  <th className="px-6 py-4 text-slate-400 text-[10px] font-bold uppercase tracking-wider">الحالة</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {MOCK_WITHDRAWALS.map((tx) => (
+                  <tr key={tx.id} className="hover:bg-slate-800/20 transition-colors">
+                    <td className="px-6 py-4 text-slate-400 text-xs">{tx.date}</td>
+                    <td className="px-6 py-4 text-white font-bold font-mono">${tx.amount.toFixed(2)}</td>
+                    <td className="px-6 py-4">
+                      <StatusBadge status={tx.status} />
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800">
-                  {MOCK_WITHDRAWALS.map((tx) => (
-                    <tr key={tx.id} className="hover:bg-slate-800/20 transition-colors">
-                      <td className="px-6 py-4 text-slate-400 text-xs">{tx.date}</td>
-                      <td className="px-6 py-4 text-white font-bold font-mono">${tx.amount.toFixed(2)}</td>
-                      <td className="px-6 py-4 text-slate-400 text-xs">{tx.network}</td>
-                      <td className="px-6 py-4">
-                        <StatusBadge status={tx.status} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-full p-12 text-center">
-                <History className="text-slate-800 mb-4" size={64} />
-                <p className="text-slate-500">لا توجد عمليات سحب سابقة لعرضها.</p>
-              </div>
-            )}
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -202,23 +178,11 @@ const Withdraw: React.FC<{ user: User, setUser: React.Dispatch<React.SetStateAct
 const StatusBadge: React.FC<{ status: Transaction['status'] }> = ({ status }) => {
   switch (status) {
     case 'completed':
-      return (
-        <span className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-bold rounded-full border border-emerald-500/20">
-          <CheckCircle2 size={12} /> مكتمل
-        </span>
-      );
+      return <span className="text-emerald-500 text-[10px] font-bold">مكتمل</span>;
     case 'pending':
-      return (
-        <span className="flex items-center gap-1.5 px-3 py-1 bg-amber-500/10 text-amber-500 text-[10px] font-bold rounded-full border border-amber-500/20">
-          <Clock size={12} /> قيد المراجعة
-        </span>
-      );
+      return <span className="text-amber-500 text-[10px] font-bold">قيد المراجعة</span>;
     case 'failed':
-      return (
-        <span className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 text-red-500 text-[10px] font-bold rounded-full border border-red-500/20">
-          <XCircle size={12} /> مرفوض
-        </span>
-      );
+      return <span className="text-red-500 text-[10px] font-bold">مرفوض</span>;
     default:
       return null;
   }

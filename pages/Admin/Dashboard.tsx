@@ -12,7 +12,8 @@ import {
   Trash2,
   Plus,
   ArrowDownLeft,
-  Save
+  Save,
+  DollarSign
 } from 'lucide-react';
 import { VIPPackage } from '../../types';
 
@@ -63,14 +64,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ packages, setPackages }
     <div className="space-y-10 pb-20">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">لوحة تحكم الإدارة</h1>
-          <p className="text-slate-400 text-sm">إدارة المستخدمين، الباقات، والعمليات المالية.</p>
+          <h1 className="text-3xl font-black text-white tracking-tight">إدارة النظام المركزية</h1>
+          <p className="text-slate-400 text-sm">مراقبة العمليات المالية وإعدادات الباقات ($).</p>
         </div>
         <button 
           onClick={handleAddClick}
           className="bg-amber-500 text-slate-950 font-black px-6 py-3 rounded-2xl flex items-center gap-2 hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20 active:scale-95"
         >
-          <Plus size={20} /> إضافة باقة VIP
+          <Plus size={20} /> إضافة باقة جديدة
         </button>
       </div>
 
@@ -78,7 +79,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ packages, setPackages }
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <AdminStatCard icon={<Users />} label="إجمالي المستخدمين" value="2,450" color="bg-blue-500" trend="+50 اليوم" />
         <AdminStatCard icon={<Package />} label="إجمالي الاستثمارات" value="$145,200" color="bg-amber-500" trend="+12% نمو" />
-        <AdminStatCard icon={<CreditCard />} label="إجمالي السحوبات" value="$62,350" color="bg-emerald-500" trend="-5% هذا الشهر" />
+        <AdminStatCard icon={<CreditCard />} label="إجمالي السحوبات" value="$62,350" color="bg-emerald-500" trend="-5% شهر" />
         <AdminStatCard icon={<Share2 />} label="إجمالي الإحالات" value="$18,900" color="bg-purple-500" trend="+8% نمو" />
       </div>
 
@@ -87,13 +88,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ packages, setPackages }
         <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-[2rem] overflow-hidden">
           <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
             <h2 className="text-xl font-bold text-white">طلبات السحب المعلقة</h2>
-            <span className="bg-amber-500/10 text-amber-500 text-[10px] px-3 py-1 rounded-full font-black uppercase">12 طلب جديد</span>
+            <span className="bg-amber-500/10 text-amber-500 text-[10px] px-3 py-1 rounded-full font-black uppercase tracking-tighter">12 طلب متبقي</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-right text-sm">
               <thead>
                 <tr className="bg-slate-800/30 text-slate-500 uppercase text-[10px] font-black tracking-widest">
-                  <th className="px-6 py-4">المستخدم</th>
+                  <th className="px-6 py-4">المستثمر</th>
                   <th className="px-6 py-4">المبلغ</th>
                   <th className="px-6 py-4">الشبكة</th>
                   <th className="px-6 py-4 text-center">الإجراء</th>
@@ -104,15 +105,15 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ packages, setPackages }
                   <tr key={i} className="hover:bg-slate-800/20 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="font-bold text-white">User_{i}99</span>
-                        <span className="text-[10px] text-slate-500">user{i}@example.com</span>
+                        <span className="font-bold text-white">Investor_{i}99</span>
+                        <span className="text-[10px] text-slate-500 italic">user{i}@pro.com</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-black text-emerald-400 font-mono">${(i * 150).toFixed(2)}</td>
+                    <td className="px-6 py-4 font-black text-emerald-400 font-mono text-base">${(i * 150).toFixed(2)}</td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
                         <span className="text-xs font-bold text-amber-500">TRC20</span>
-                        <span className="text-[10px] text-slate-600 font-mono">T9yD...xY56P89...</span>
+                        <span className="text-[10px] text-slate-600 font-mono">T9yD...xY56...</span>
                       </div>
                     </td>
                     <td className="px-6 py-4">
@@ -132,98 +133,47 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ packages, setPackages }
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <div className="bg-slate-900 border border-slate-800 rounded-[2rem] overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-slate-800 bg-slate-900/50 text-center">
-            <h2 className="text-xl font-bold text-white">آخر الإيداعات</h2>
+        {/* VIP Control Section */}
+        <div className="bg-slate-900 border border-slate-800 rounded-[2rem] overflow-hidden shadow-2xl shadow-black/20">
+          <div className="p-6 border-b border-slate-800 bg-slate-900/50 flex items-center justify-between">
+            <h2 className="text-lg font-black text-white">إدارة الباقات الحالية</h2>
+            <DollarSign className="text-amber-500" size={20} />
           </div>
-          <div className="p-4 space-y-3 flex-1 overflow-y-auto max-h-[400px]">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="flex items-center justify-between p-4 bg-slate-950/50 rounded-2xl border border-slate-800/50 hover:border-slate-700 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-                    <ArrowDownLeft size={18} />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-slate-200">إيداع من User_{i}</p>
-                    <p className="text-[10px] text-slate-500">منذ {i * 12} دقيقة</p>
-                  </div>
+          <div className="p-4 space-y-3">
+            {packages.map((pkg) => (
+              <div key={pkg.id} className="flex items-center justify-between p-4 bg-slate-950/50 rounded-2xl border border-slate-800/50 hover:border-amber-500/30 transition-all group">
+                <div>
+                  <p className="text-sm font-black text-white">{pkg.name}</p>
+                  <p className="text-[10px] text-slate-500 font-bold">${pkg.price} | {pkg.dailyProfitPercent}% عائد</p>
                 </div>
-                <p className="text-emerald-400 font-black font-mono text-sm">+${i * 500}</p>
+                <div className="flex gap-2">
+                  <button onClick={() => handleEditClick(pkg)} className="p-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-amber-500 hover:text-slate-950 transition-all">
+                    <Edit size={14} />
+                  </button>
+                  <button onClick={() => handleDelete(pkg.id)} className="p-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-red-500 hover:text-white transition-all">
+                    <Trash2 size={14} />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* VIP Management Section */}
-      <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-black/20">
-        <div className="p-8 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-          <h2 className="text-2xl font-black text-white">إدارة باقات VIP</h2>
-          <div className="flex gap-2">
-             <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-             <span className="text-[10px] text-slate-500 font-bold uppercase">التحكم المباشر</span>
-          </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-right text-sm">
-            <thead>
-              <tr className="bg-slate-800/40 text-slate-500 uppercase text-[10px] font-black tracking-widest">
-                <th className="px-8 py-6">الباقة</th>
-                <th className="px-8 py-6">السعر</th>
-                <th className="px-8 py-6">الربح</th>
-                <th className="px-8 py-6">المدة</th>
-                <th className="px-8 py-6">الحالة</th>
-                <th className="px-8 py-6 text-center">الإجراء</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/50">
-              {packages.map((pkg) => (
-                <tr key={pkg.id} className="hover:bg-slate-800/10 transition-colors group">
-                  <td className="px-8 py-6 font-black text-white text-lg">{pkg.name}</td>
-                  <td className="px-8 py-6 font-mono font-black text-amber-500 text-lg">${pkg.price}</td>
-                  <td className="px-8 py-6 text-emerald-400 font-black">{pkg.dailyProfitPercent}% <span className="text-[10px] text-slate-600 font-bold mr-1">/يوم</span></td>
-                  <td className="px-8 py-6 text-slate-400 font-bold">{pkg.durationDays} يوم</td>
-                  <td className="px-8 py-6">
-                    <span className={`px-3 py-1 text-[10px] font-black rounded-full uppercase ${pkg.status === 'active' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-red-500/10 text-red-500'}`}>
-                      {pkg.status === 'active' ? 'نشط' : 'معطل'}
-                    </span>
-                  </td>
-                  <td className="px-8 py-6">
-                    <div className="flex justify-center gap-3">
-                      <button 
-                        onClick={() => handleEditClick(pkg)}
-                        className="p-3 bg-amber-500/10 text-amber-500 rounded-2xl hover:bg-amber-500 hover:text-slate-950 transition-all shadow-lg shadow-amber-500/5"
-                      >
-                        <Edit size={18} />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(pkg.id)}
-                        className="p-3 bg-red-500/10 text-red-400 rounded-2xl hover:bg-red-500 hover:text-white transition-all shadow-lg shadow-red-500/5"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Edit Modal */}
+      {/* Edit/Add Modal */}
       {editingPackage && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-          <div className="bg-slate-900 border border-slate-800 rounded-[2.5rem] w-full max-w-lg p-10 shadow-3xl">
+          <div className="bg-slate-900 border border-slate-800 rounded-[3rem] w-full max-w-xl p-10 shadow-3xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-3xl rounded-full"></div>
+            
             <h3 className="text-2xl font-black text-white mb-8 text-center flex items-center justify-center gap-3">
               {isAddMode ? <Plus className="text-amber-500" /> : <Edit className="text-amber-500" />}
-              {isAddMode ? 'إضافة باقة جديدة' : 'تعديل بيانات الباقة'}
+              {isAddMode ? 'إضافة باقة استثمارية' : 'تعديل بيانات الباقة'}
             </h3>
             
             <div className="space-y-6">
               <div>
-                <label className="text-xs font-black text-slate-500 uppercase mb-2 block mr-1">اسم الباقة</label>
+                <label className="text-xs font-black text-slate-500 uppercase mb-2 block mr-1">اسم الباقة (مثلاً: VIP 1)</label>
                 <input 
                   type="text" 
                   value={editingPackage.name}
@@ -234,12 +184,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ packages, setPackages }
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-black text-slate-500 uppercase mb-2 block mr-1">السعر ($)</label>
+                  <label className="text-xs font-black text-slate-500 uppercase mb-2 block mr-1">المبلغ المطلوب ($)</label>
                   <input 
                     type="number" 
                     value={editingPackage.price}
                     onChange={e => setEditingPackage({...editingPackage, price: Number(e.target.value)})}
-                    className="w-full bg-slate-950 border border-slate-800 text-white p-4 rounded-2xl focus:border-amber-500 focus:outline-none font-mono font-black"
+                    className="w-full bg-slate-950 border border-slate-800 text-white p-4 rounded-2xl focus:border-amber-500 focus:outline-none font-mono font-black text-lg"
                   />
                 </div>
                 <div>
@@ -248,13 +198,28 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ packages, setPackages }
                     type="number" 
                     value={editingPackage.dailyProfitPercent}
                     onChange={e => setEditingPackage({...editingPackage, dailyProfitPercent: Number(e.target.value)})}
-                    className="w-full bg-slate-950 border border-slate-800 text-white p-4 rounded-2xl focus:border-amber-500 focus:outline-none font-mono font-black text-emerald-400"
+                    className="w-full bg-slate-950 border border-slate-800 text-white p-4 rounded-2xl focus:border-amber-500 focus:outline-none font-mono font-black text-emerald-400 text-lg"
                   />
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-4 p-5 bg-slate-950/80 rounded-2xl border border-slate-800/50">
+                 <div>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">الربح اليومي المتوقع</p>
+                    <p className="text-xl font-black text-emerald-400 font-mono">
+                      ${(editingPackage.price * (editingPackage.dailyProfitPercent / 100)).toFixed(2)}
+                    </p>
+                 </div>
+                 <div>
+                    <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">الربح الكلي المتوقع</p>
+                    <p className="text-xl font-black text-amber-500 font-mono">
+                      ${(editingPackage.price * (editingPackage.dailyProfitPercent / 100) * editingPackage.durationDays).toLocaleString()}
+                    </p>
+                 </div>
+              </div>
+
               <div>
-                <label className="text-xs font-black text-slate-500 uppercase mb-2 block mr-1">المدة (أيام)</label>
+                <label className="text-xs font-black text-slate-500 uppercase mb-2 block mr-1">صلاحية الباقة (أيام)</label>
                 <input 
                   type="number" 
                   value={editingPackage.durationDays}
@@ -266,9 +231,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ packages, setPackages }
               <div className="flex gap-4 pt-6">
                 <button 
                   onClick={handleSave}
-                  className="flex-1 bg-amber-500 text-slate-950 font-black py-4 rounded-2xl hover:bg-amber-400 transition-all flex items-center justify-center gap-2 shadow-xl shadow-amber-500/10"
+                  className="flex-2 grow bg-amber-500 text-slate-950 font-black py-4 rounded-2xl hover:bg-amber-400 transition-all flex items-center justify-center gap-2 shadow-xl shadow-amber-500/20 active:scale-95"
                 >
-                  <Save size={20} /> حفظ التعديلات
+                  <Save size={20} /> حفظ البيانات
                 </button>
                 <button 
                   onClick={() => setEditingPackage(null)}
@@ -286,10 +251,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ packages, setPackages }
 };
 
 const AdminStatCard: React.FC<{ icon: React.ReactNode, label: string, value: string, color: string, trend: string }> = ({ icon, label, value, color, trend }) => (
-  <div className="bg-slate-900 border border-slate-800 p-8 rounded-[2rem] hover:border-slate-700 transition-all group overflow-hidden relative">
+  <div className="bg-slate-900 border border-slate-800 p-8 rounded-[2rem] hover:border-slate-700 transition-all group overflow-hidden relative shadow-lg shadow-black/10">
     <div className={`absolute -right-4 -bottom-4 w-24 h-24 ${color} opacity-[0.03] rounded-full blur-2xl group-hover:opacity-[0.08] transition-all`}></div>
     <div className={`w-14 h-14 rounded-[1.25rem] ${color} flex items-center justify-center text-white mb-6 shadow-xl shadow-black/20 group-hover:scale-110 transition-transform`}>
-      {/* Added cast to any for icon element to fix TypeScript error by allowing 'size' prop in React.cloneElement */}
       {React.cloneElement(icon as React.ReactElement<any>, { size: 28 })}
     </div>
     <p className="text-slate-500 text-[10px] mb-1 font-black uppercase tracking-widest">{label}</p>

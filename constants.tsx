@@ -16,4 +16,4 @@ export const CRYPTO_NETWORKS = [
   { name: 'USDT (ERC20)', address: '0xAb5...E9d1C2b3a4f5d6e7c8d9', icon: 'ETH' },
 ];
 
-export const MIN_WITHDRAWAL = 10;
+export const MIN_WITHDRAWAL = 10; // 10 USD

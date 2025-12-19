@@ -29,8 +29,8 @@ const App: React.FC = () => {
     id: '1',
     username: 'المستثمر_الذكي',
     email: 'user@example.com',
-    balance: 25.50,
-    totalEarnings: 1540.20,
+    balance: 25.50, // Initial balance in USD
+    totalEarnings: 1540.20, // Total earnings in USD
     referralCode: 'PRO-99-VIP',
     role: 'admin'
   });
