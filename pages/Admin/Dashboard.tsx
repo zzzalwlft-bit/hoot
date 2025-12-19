@@ -15,7 +15,7 @@ import {
   Save,
   DollarSign
 } from 'lucide-react';
-import { VIPPackage } from '../../types';
+import { VIPPackage } from '../../types.ts';
 
 interface AdminDashboardProps {
   packages: VIPPackage[];

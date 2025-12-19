@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, ArrowRight, Zap, TrendingUp, Wallet } from 'lucide-react';
-import { User, VIPPackage } from '../types';
+import { User, VIPPackage } from '../types.ts';
 
 interface HomeProps {
   user: User;

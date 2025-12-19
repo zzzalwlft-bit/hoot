@@ -12,15 +12,15 @@ import {
   Plus
 } from 'lucide-react';
 
-import Home from './pages/Home';
-import Deposit from './pages/Deposit';
-import Earnings from './pages/Earnings';
-import Referral from './pages/Referral';
-import Withdraw from './pages/Withdraw';
-import AdminDashboard from './pages/Admin/Dashboard';
-import Auth from './pages/Auth';
-import { User, VIPPackage } from './types';
-import { VIP_PACKAGES as INITIAL_VIP_PACKAGES } from './constants';
+import Home from './pages/Home.tsx';
+import Deposit from './pages/Deposit.tsx';
+import Earnings from './pages/Earnings.tsx';
+import Referral from './pages/Referral.tsx';
+import Withdraw from './pages/Withdraw.tsx';
+import AdminDashboard from './pages/Admin/Dashboard.tsx';
+import Auth from './pages/Auth.tsx';
+import { User, VIPPackage } from './types.ts';
+import { VIP_PACKAGES as INITIAL_VIP_PACKAGES } from './constants.tsx';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
