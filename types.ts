@@ -16,6 +16,27 @@ export interface User {
   totalEarnings: number;
   referralCode: string;
   role: 'user' | 'admin';
+  activePackage?: string;
+  referralCount?: number;
+}
+
+export interface WithdrawalRequest {
+  id: string;
+  userId: string;
+  username: string;
+  amount: number;
+  network: string;
+  walletAddress: string;
+  status: 'pending' | 'completed' | 'failed';
+  date: string;
+}
+
+export interface SystemSettings {
+  wallets: {
+    network: string;
+    address: string;
+    qrCode: string;
+  }[];
 }
 
 export interface Transaction {
