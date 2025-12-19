@@ -12,14 +12,15 @@ import {
 import { TrendingUp, DollarSign, PieChart, ArrowUpRight } from 'lucide-react';
 import { User } from '../types';
 
+// سيتم تصفير البيانات للرسم البياني للمستخدم الجديد
 const data = [
-  { name: 'السبت', profit: 45.2 },
-  { name: 'الأحد', profit: 120.5 },
-  { name: 'الاثنين', profit: 85.0 },
-  { name: 'الثلاثاء', profit: 190.8 },
-  { name: 'الأربعاء', profit: 145.3 },
-  { name: 'الخميس', profit: 250.0 },
-  { name: 'الجمعة', profit: 320.1 },
+  { name: 'السبت', profit: 0 },
+  { name: 'الأحد', profit: 0 },
+  { name: 'الاثنين', profit: 0 },
+  { name: 'الثلاثاء', profit: 0 },
+  { name: 'الأربعاء', profit: 0 },
+  { name: 'الخميس', profit: 0 },
+  { name: 'الجمعة', profit: 0 },
 ];
 
 const Earnings: React.FC<{ user: User }> = ({ user }) => {
@@ -36,7 +37,7 @@ const Earnings: React.FC<{ user: User }> = ({ user }) => {
           label="إجمالي الأرباح" 
           value={`$${user.totalEarnings.toLocaleString()}`} 
           color="text-emerald-500"
-          trend="+12% هذا الأسبوع"
+          trend="+0% هذا الأسبوع"
         />
         <StatCard 
           icon={<PieChart size={24} />} 
@@ -47,7 +48,7 @@ const Earnings: React.FC<{ user: User }> = ({ user }) => {
         <StatCard 
           icon={<TrendingUp size={24} />} 
           label="أرباح قيد المراجعة" 
-          value={`$125.00`} 
+          value={`$0.00`} // تم تصفيرها للمستخدم الجديد
           color="text-blue-500"
         />
       </div>
@@ -107,30 +108,25 @@ const Earnings: React.FC<{ user: User }> = ({ user }) => {
           <h2 className="text-xl font-bold text-white">تفاصيل آخر العمليات</h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full text-right">
-            <thead>
-              <tr className="bg-slate-800/30">
-                <th className="px-6 py-4 text-slate-400 text-xs font-bold uppercase tracking-wider">التاريخ</th>
-                <th className="px-6 py-4 text-slate-400 text-xs font-bold uppercase tracking-wider">نوع الباقة</th>
-                <th className="px-6 py-4 text-slate-400 text-xs font-bold uppercase tracking-wider">المبلغ المضاف</th>
-                <th className="px-6 py-4 text-slate-400 text-xs font-bold uppercase tracking-wider">الحالة</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800">
-              {[1, 2, 3, 4, 5].map((i) => (
-                <tr key={i} className="hover:bg-slate-800/20 transition-colors">
-                  <td className="px-6 py-4 text-slate-300 text-sm">2023/10/{(20-i)}</td>
-                  <td className="px-6 py-4 font-medium text-white">عائد VIP {i} اليومي</td>
-                  <td className="px-6 py-4 text-emerald-400 font-bold font-mono">+${(i * 12.5).toFixed(2)}</td>
-                  <td className="px-6 py-4">
-                    <span className="px-3 py-1 bg-emerald-500/10 text-emerald-500 text-[10px] font-bold rounded-full border border-emerald-500/20">
-                      ناجح
-                    </span>
-                  </td>
+          {user.totalEarnings === 0 ? (
+            <div className="p-20 text-center">
+              <p className="text-slate-500 font-bold">لا توجد عمليات مسجلة حالياً. ابدأ بالاستثمار لتظهر أرباحك هنا.</p>
+            </div>
+          ) : (
+            <table className="w-full text-right">
+              <thead>
+                <tr className="bg-slate-800/30">
+                  <th className="px-6 py-4 text-slate-400 text-xs font-bold uppercase tracking-wider">التاريخ</th>
+                  <th className="px-6 py-4 text-slate-400 text-xs font-bold uppercase tracking-wider">نوع الباقة</th>
+                  <th className="px-6 py-4 text-slate-400 text-xs font-bold uppercase tracking-wider">المبلغ المضاف</th>
+                  <th className="px-6 py-4 text-slate-400 text-xs font-bold uppercase tracking-wider">الحالة</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-800">
+                {/* ستظهر العمليات هنا عند وجودها */}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

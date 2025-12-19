@@ -28,11 +28,11 @@ const App: React.FC = () => {
   const [vipPackages, setVipPackages] = useState<VIPPackage[]>(INITIAL_VIP_PACKAGES);
   const [user, setUser] = useState<User>({
     id: '1',
-    username: 'المستثمر_الذكي',
+    username: 'مستثمر جديد',
     email: '',
-    balance: 25.50,
-    totalEarnings: 1540.20,
-    referralCode: 'PRO-99-VIP',
+    balance: 0.00, // الرصيد يبدأ من الصفر
+    totalEarnings: 0.00, // إجمالي الأرباح يبدأ من الصفر
+    referralCode: 'PRO-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
     role: 'user'
   });
 
@@ -41,7 +41,12 @@ const App: React.FC = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session?.user) {
-        setUser(prev => ({ ...prev, email: session.user.email || '', id: session.user.id }));
+        setUser(prev => ({ 
+          ...prev, 
+          email: session.user.email || '', 
+          id: session.user.id,
+          username: session.user.user_metadata?.full_name || prev.username
+        }));
       }
     });
 
@@ -49,7 +54,12 @@ const App: React.FC = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session?.user) {
-        setUser(prev => ({ ...prev, email: session.user.email || '', id: session.user.id }));
+        setUser(prev => ({ 
+          ...prev, 
+          email: session.user.email || '', 
+          id: session.user.id,
+          username: session.user.user_metadata?.full_name || prev.username
+        }));
       }
     });
 
