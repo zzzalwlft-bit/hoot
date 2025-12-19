@@ -1,28 +1,50 @@
 
 import React, { useState } from 'react';
-import { Mail, Lock, User, UserPlus, LogIn, ShieldCheck, Sparkles } from 'lucide-react';
+import { Mail, Lock, User, UserPlus, LogIn, ShieldCheck, Sparkles, AlertCircle } from 'lucide-react';
+import { supabase } from '../supabase.ts';
 
-interface AuthProps {
-  onLogin: () => void;
-}
-
-const Auth: React.FC<AuthProps> = ({ onLogin }) => {
+const Auth: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate API delay
-    setTimeout(() => {
+    setError(null);
+
+    try {
+      if (isLogin) {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: username,
+            }
+          }
+        });
+        if (error) throw error;
+        alert("تفقد بريدك الإلكتروني لتأكيد الحساب!");
+      }
+    } catch (err: any) {
+      setError(err.message || "حدث خطأ ما");
+    } finally {
       setLoading(false);
-      onLogin();
-    }, 1500);
+    }
   };
 
   return (
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Decorative background elements */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/10 blur-[120px] rounded-full"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-500/10 blur-[120px] rounded-full"></div>
 
@@ -31,26 +53,32 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
           <div className="inline-flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-500 to-amber-600 mb-4 shadow-2xl shadow-amber-500/20 rotate-3">
             <ShieldCheck size={40} className="text-slate-950" />
           </div>
-          <h1 className="text-3xl font-black text-white mb-2 tracking-tight">PROINVEST</h1>
+          <h1 className="text-3xl font-black text-white mb-2 tracking-tight uppercase">PROINVEST</h1>
           <p className="text-slate-400 font-medium">مستقبلك المالي يبدأ بخطوة ذكية</p>
         </div>
 
         <div className="bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-[2.5rem] p-8 md:p-10 shadow-2xl shadow-black/50">
-          {/* Tabs */}
           <div className="flex bg-slate-950/50 p-1.5 rounded-2xl mb-8 border border-slate-800">
             <button 
-              onClick={() => setIsLogin(true)}
+              onClick={() => { setIsLogin(true); setError(null); }}
               className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${isLogin ? 'bg-amber-500 text-slate-950 shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
             >
               تسجيل الدخول
             </button>
             <button 
-              onClick={() => setIsLogin(false)}
+              onClick={() => { setIsLogin(false); setError(null); }}
               className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${!isLogin ? 'bg-amber-500 text-slate-950 shadow-lg' : 'text-slate-400 hover:text-slate-200'}`}
             >
               إنشاء حساب
             </button>
           </div>
+
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-500 text-xs font-bold">
+              <AlertCircle size={18} />
+              {error}
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-5">
             {!isLogin && (
@@ -60,6 +88,8 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
                   <User className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                   <input 
                     type="text" 
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     required
                     placeholder="أدخل اسمك الكامل"
                     className="w-full bg-slate-950 border border-slate-800 text-slate-200 py-4 pr-12 pl-4 rounded-2xl focus:outline-none focus:border-amber-500 transition-all placeholder:text-slate-700"
@@ -74,6 +104,8 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
                 <Mail className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                 <input 
                   type="email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                   placeholder="name@example.com"
                   className="w-full bg-slate-950 border border-slate-800 text-slate-200 py-4 pr-12 pl-4 rounded-2xl focus:outline-none focus:border-amber-500 transition-all placeholder:text-slate-700"
@@ -90,26 +122,14 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
                 <Lock className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
                 <input 
                   type="password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••"
                   className="w-full bg-slate-950 border border-slate-800 text-slate-200 py-4 pr-12 pl-4 rounded-2xl focus:outline-none focus:border-amber-500 transition-all placeholder:text-slate-700"
                 />
               </div>
             </div>
-
-            {!isLogin && (
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 mr-2 uppercase">رمز الإحالة (اختياري)</label>
-                <div className="relative">
-                  <Sparkles className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                  <input 
-                    type="text" 
-                    placeholder="PRO-XXXX"
-                    className="w-full bg-slate-950 border border-slate-800 text-slate-200 py-4 pr-12 pl-4 rounded-2xl focus:outline-none focus:border-amber-500 transition-all placeholder:text-slate-700 font-mono"
-                  />
-                </div>
-              </div>
-            )}
 
             <button 
               type="submit" 

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -21,26 +21,47 @@ import AdminDashboard from './pages/Admin/Dashboard.tsx';
 import Auth from './pages/Auth.tsx';
 import { User, VIPPackage } from './types.ts';
 import { VIP_PACKAGES as INITIAL_VIP_PACKAGES } from './constants.tsx';
+import { supabase } from './supabase.ts';
 
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [session, setSession] = useState<any>(null);
   const [vipPackages, setVipPackages] = useState<VIPPackage[]>(INITIAL_VIP_PACKAGES);
   const [user, setUser] = useState<User>({
     id: '1',
     username: 'المستثمر_الذكي',
-    email: 'user@example.com',
-    balance: 25.50, // Initial balance in USD
-    totalEarnings: 1540.20, // Total earnings in USD
+    email: '',
+    balance: 25.50,
+    totalEarnings: 1540.20,
     referralCode: 'PRO-99-VIP',
-    role: 'admin'
+    role: 'user'
   });
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session?.user) {
+        setUser(prev => ({ ...prev, email: session.user.email || '', id: session.user.id }));
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (session?.user) {
+        setUser(prev => ({ ...prev, email: session.user.email || '', id: session.user.id }));
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
   };
 
-  if (!isAuthenticated) {
-    return <Auth onLogin={() => setIsAuthenticated(true)} />;
+  if (!session) {
+    return <Auth />;
   }
 
   return (
