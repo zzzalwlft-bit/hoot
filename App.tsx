@@ -24,7 +24,8 @@ import { VIP_PACKAGES as INITIAL_VIP_PACKAGES } from './constants.tsx';
 import { supabase } from './supabase.ts';
 
 // حدد البريد الإلكتروني للمدير هنا
-const ADMIN_EMAIL = 'admin@proinvest.com'; 
+const ADMIN_EMAIL = 'zzzalwlft@gmail.com
+'; 
 
 const App: React.FC = () => {
   const [session, setSession] = useState<any>(null);
