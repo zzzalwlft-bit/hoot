@@ -9,7 +9,8 @@ import {
   ArrowUpRight, 
   LogOut, 
   ShieldCheck,
-  Plus
+  Plus,
+  Loader2
 } from 'lucide-react';
 
 import Home from './pages/Home.tsx';
@@ -25,6 +26,7 @@ import { supabase } from './supabase.ts';
 
 const App: React.FC = () => {
   const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [vipPackages, setVipPackages] = useState<VIPPackage[]>(INITIAL_VIP_PACKAGES);
   const [user, setUser] = useState<User>({
     id: '1',
@@ -36,37 +38,43 @@ const App: React.FC = () => {
     role: 'user'
   });
 
-  const fetchAndSyncUser = async () => {
-    // نستخدم getUser لجلب أحدث البيانات من السيرفر مباشرة وليس من التخزين المحلي فقط
-    const { data: { user: sbUser } } = await supabase.auth.getUser();
-    if (sbUser) {
-      const metadata = sbUser.user_metadata;
-      const isAdmin = metadata?.role === 'admin';
-      
-      setUser(prev => ({ 
-        ...prev, 
-        email: sbUser.email || '', 
-        id: sbUser.id,
-        username: metadata?.full_name || 'مستثمر',
-        role: isAdmin ? 'admin' : 'user',
-        referralCode: prev.referralCode || 'PRO-' + sbUser.id.substring(0, 5).toUpperCase()
-      }));
-    }
+  const fetchAndSyncUser = async (sbUser: any) => {
+    if (!sbUser) return;
+    
+    // جلب البيانات الطازجة من السيرفر
+    const { data: { user: freshUser } } = await supabase.auth.getUser();
+    const targetUser = freshUser || sbUser;
+    
+    const metadata = targetUser.user_metadata;
+    const isAdmin = metadata?.role === 'admin';
+    
+    setUser(prev => ({ 
+      ...prev, 
+      email: targetUser.email || '', 
+      id: targetUser.id,
+      username: metadata?.full_name || 'مستثمر',
+      role: isAdmin ? 'admin' : 'user',
+      referralCode: prev.referralCode || 'PRO-' + targetUser.id.substring(0, 5).toUpperCase()
+    }));
+    setLoading(false);
   };
 
   useEffect(() => {
-    // التحقق الأولي
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session) fetchAndSyncUser();
+      if (session) {
+        fetchAndSyncUser(session.user);
+      } else {
+        setLoading(false);
+      }
     });
 
-    // الاستماع لتغييرات الحالة
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session) {
-        fetchAndSyncUser();
+        fetchAndSyncUser(session.user);
       } else {
+        setLoading(false);
         setUser({
           id: '1',
           username: 'مستثمر جديد',
@@ -85,6 +93,14 @@ const App: React.FC = () => {
   const handleLogout = async () => {
     await supabase.auth.signOut();
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <Loader2 className="text-amber-500 animate-spin" size={48} />
+      </div>
+    );
+  }
 
   if (!session) {
     return <Auth />;
@@ -136,9 +152,17 @@ const App: React.FC = () => {
                 element={
                   user.role === 'admin' 
                   ? <AdminDashboard packages={vipPackages} setPackages={setVipPackages} /> 
-                  : <Navigate to="/" replace />
+                  : (
+                    <div className="flex flex-col items-center justify-center py-20 text-center">
+                      <ShieldCheck size={64} className="text-red-500 mb-4 opacity-20" />
+                      <h2 className="text-2xl font-bold text-white mb-2">وصول محدود</h2>
+                      <p className="text-slate-500 max-w-xs">عذراً، هذه المنطقة مخصصة لمدراء النظام فقط. رتبتك الحالية: {user.role}</p>
+                      <Link to="/" className="mt-6 text-amber-500 font-bold hover:underline">العودة للرئيسية</Link>
+                    </div>
+                  )
                 } 
               />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
         </main>
