@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Wallet, 
@@ -23,6 +23,9 @@ import { User, VIPPackage } from './types.ts';
 import { VIP_PACKAGES as INITIAL_VIP_PACKAGES } from './constants.tsx';
 import { supabase } from './supabase.ts';
 
+// حدد البريد الإلكتروني للمدير هنا
+const ADMIN_EMAIL = 'admin@proinvest.com'; 
+
 const App: React.FC = () => {
   const [session, setSession] = useState<any>(null);
   const [vipPackages, setVipPackages] = useState<VIPPackage[]>(INITIAL_VIP_PACKAGES);
@@ -30,37 +33,39 @@ const App: React.FC = () => {
     id: '1',
     username: 'مستثمر جديد',
     email: '',
-    balance: 0.00, // الرصيد يبدأ من الصفر
-    totalEarnings: 0.00, // إجمالي الأرباح يبدأ من الصفر
-    referralCode: 'PRO-' + Math.random().toString(36).substring(2, 7).toUpperCase(),
+    balance: 0.00,
+    totalEarnings: 0.00,
+    referralCode: '',
     role: 'user'
   });
 
+  const syncUserSession = (currentSession: any) => {
+    if (currentSession?.user) {
+      const email = currentSession.user.email || '';
+      const isAdmin = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+      
+      setUser(prev => ({ 
+        ...prev, 
+        email: email, 
+        id: currentSession.user.id,
+        username: currentSession.user.user_metadata?.full_name || 'مستثمر',
+        role: isAdmin ? 'admin' : 'user',
+        referralCode: prev.referralCode || 'PRO-' + currentSession.user.id.substring(0, 5).toUpperCase()
+      }));
+    }
+  };
+
   useEffect(() => {
-    // Check initial session
+    // التحقق من الجلسة عند التحميل
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      if (session?.user) {
-        setUser(prev => ({ 
-          ...prev, 
-          email: session.user.email || '', 
-          id: session.user.id,
-          username: session.user.user_metadata?.full_name || prev.username
-        }));
-      }
+      syncUserSession(session);
     });
 
-    // Listen for auth changes
+    // مراقبة تغييرات حالة المصادقة
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      if (session?.user) {
-        setUser(prev => ({ 
-          ...prev, 
-          email: session.user.email || '', 
-          id: session.user.id,
-          username: session.user.user_metadata?.full_name || prev.username
-        }));
-      }
+      syncUserSession(session);
     });
 
     return () => subscription.unsubscribe();
@@ -114,12 +119,16 @@ const App: React.FC = () => {
               <Route path="/earnings" element={<Earnings user={user} />} />
               <Route path="/referral" element={<Referral user={user} />} />
               <Route path="/withdraw" element={<Withdraw user={user} setUser={setUser} />} />
-              {user.role === 'admin' && (
-                <Route 
-                  path="/admin/*" 
-                  element={<AdminDashboard packages={vipPackages} setPackages={setVipPackages} />} 
-                />
-              )}
+              
+              {/* حماية مسار الأدمن بصرامة */}
+              <Route 
+                path="/admin/*" 
+                element={
+                  user.role === 'admin' 
+                  ? <AdminDashboard packages={vipPackages} setPackages={setVipPackages} /> 
+                  : <Navigate to="/" replace />
+                } 
+              />
             </Routes>
           </div>
         </main>
@@ -131,6 +140,8 @@ const App: React.FC = () => {
             <BottomNavLink to="/earnings" icon={<TrendingUp size={24} />} label="الأرباح" />
             <BottomNavLink to="/referral" icon={<Users size={24} />} label="الإحالة" />
             <BottomNavLink to="/withdraw" icon={<ArrowUpRight size={24} />} label="السحب" />
+            
+            {/* يظهر زر الأدمن فقط إذا كان المستخدم هو صاحب البريد المحدد */}
             {user.role === 'admin' ? (
               <BottomNavLink to="/admin" icon={<ShieldCheck size={24} />} label="الأدمن" />
             ) : (
