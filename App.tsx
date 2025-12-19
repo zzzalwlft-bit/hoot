@@ -39,27 +39,41 @@ const App: React.FC = () => {
   });
 
   const fetchAndSyncUser = async (sbUser: any) => {
-    if (!sbUser) return;
+    if (!sbUser) {
+      setLoading(false);
+      return;
+    }
     
-    // جلب البيانات الطازجة من السيرفر
-    const { data: { user: freshUser } } = await supabase.auth.getUser();
-    const targetUser = freshUser || sbUser;
-    
-    const metadata = targetUser.user_metadata;
-    const isAdmin = metadata?.role === 'admin';
-    
-    setUser(prev => ({ 
-      ...prev, 
-      email: targetUser.email || '', 
-      id: targetUser.id,
-      username: metadata?.full_name || 'مستثمر',
-      role: isAdmin ? 'admin' : 'user',
-      referralCode: prev.referralCode || 'PRO-' + targetUser.id.substring(0, 5).toUpperCase()
-    }));
-    setLoading(false);
+    try {
+      // جلب بيانات المستخدم كاملة من السيرفر لضمان تحديث الـ Metadata
+      const { data: { user: freshUser }, error } = await supabase.auth.getUser();
+      
+      if (error) throw error;
+
+      const targetUser = freshUser || sbUser;
+      const metadata = targetUser.user_metadata || {};
+      
+      // نتحقق من وجود كلمة admin في الـ metadata بأكثر من طريقة لضمان الدقة
+      const isAdmin = metadata.role === 'admin' || targetUser.app_metadata?.role === 'admin';
+      
+      setUser({
+        id: targetUser.id,
+        email: targetUser.email || '',
+        username: metadata.full_name || metadata.username || 'مستثمر',
+        balance: 0.00, // هنا يمكن لاحقاً الربط مع جدول المحافظ
+        totalEarnings: 0.00,
+        referralCode: 'PRO-' + targetUser.id.substring(0, 5).toUpperCase(),
+        role: isAdmin ? 'admin' : 'user'
+      });
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
+    // الفحص عند بداية التشغيل
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) {
@@ -69,6 +83,7 @@ const App: React.FC = () => {
       }
     });
 
+    // مراقبة تغييرات حالة التسجيل
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (session) {
@@ -96,8 +111,12 @@ const App: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <Loader2 className="text-amber-500 animate-spin" size={48} />
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4">
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 border-4 border-amber-500/20 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-amber-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <p className="text-amber-500 font-bold animate-pulse">جاري التحقق من البيانات...</p>
       </div>
     );
   }
@@ -153,11 +172,13 @@ const App: React.FC = () => {
                   user.role === 'admin' 
                   ? <AdminDashboard packages={vipPackages} setPackages={setVipPackages} /> 
                   : (
-                    <div className="flex flex-col items-center justify-center py-20 text-center">
-                      <ShieldCheck size={64} className="text-red-500 mb-4 opacity-20" />
-                      <h2 className="text-2xl font-bold text-white mb-2">وصول محدود</h2>
-                      <p className="text-slate-500 max-w-xs">عذراً، هذه المنطقة مخصصة لمدراء النظام فقط. رتبتك الحالية: {user.role}</p>
-                      <Link to="/" className="mt-6 text-amber-500 font-bold hover:underline">العودة للرئيسية</Link>
+                    <div className="flex flex-col items-center justify-center py-20 text-center animate-in zoom-in duration-300">
+                      <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mb-6">
+                        <ShieldCheck size={48} className="text-red-500" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-white mb-2">وصول غير مصرح</h2>
+                      <p className="text-slate-500 max-w-xs mb-8">عذراً، هذه المنطقة مخصصة لمدراء النظام فقط. رتبتك الحالية في النظام هي: <span className="text-red-400 font-bold uppercase">{user.role}</span></p>
+                      <Link to="/" className="bg-slate-800 text-white px-8 py-3 rounded-2xl font-bold hover:bg-slate-700 transition-all">العودة للرئيسية</Link>
                     </div>
                   )
                 } 
