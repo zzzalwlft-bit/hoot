@@ -23,10 +23,6 @@ import { User, VIPPackage } from './types.ts';
 import { VIP_PACKAGES as INITIAL_VIP_PACKAGES } from './constants.tsx';
 import { supabase } from './supabase.ts';
 
-// حدد البريد الإلكتروني للمدير هنا
-const ADMIN_EMAIL = 'zzzalwlft@gmail.com
-'; 
-
 const App: React.FC = () => {
   const [session, setSession] = useState<any>(null);
   const [vipPackages, setVipPackages] = useState<VIPPackage[]>(INITIAL_VIP_PACKAGES);
@@ -40,33 +36,47 @@ const App: React.FC = () => {
     role: 'user'
   });
 
-  const syncUserSession = (currentSession: any) => {
-    if (currentSession?.user) {
-      const email = currentSession.user.email || '';
-      const isAdmin = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  const fetchAndSyncUser = async () => {
+    // نستخدم getUser لجلب أحدث البيانات من السيرفر مباشرة وليس من التخزين المحلي فقط
+    const { data: { user: sbUser } } = await supabase.auth.getUser();
+    if (sbUser) {
+      const metadata = sbUser.user_metadata;
+      const isAdmin = metadata?.role === 'admin';
       
       setUser(prev => ({ 
         ...prev, 
-        email: email, 
-        id: currentSession.user.id,
-        username: currentSession.user.user_metadata?.full_name || 'مستثمر',
+        email: sbUser.email || '', 
+        id: sbUser.id,
+        username: metadata?.full_name || 'مستثمر',
         role: isAdmin ? 'admin' : 'user',
-        referralCode: prev.referralCode || 'PRO-' + currentSession.user.id.substring(0, 5).toUpperCase()
+        referralCode: prev.referralCode || 'PRO-' + sbUser.id.substring(0, 5).toUpperCase()
       }));
     }
   };
 
   useEffect(() => {
-    // التحقق من الجلسة عند التحميل
+    // التحقق الأولي
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      syncUserSession(session);
+      if (session) fetchAndSyncUser();
     });
 
-    // مراقبة تغييرات حالة المصادقة
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    // الاستماع لتغييرات الحالة
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
-      syncUserSession(session);
+      if (session) {
+        fetchAndSyncUser();
+      } else {
+        setUser({
+          id: '1',
+          username: 'مستثمر جديد',
+          email: '',
+          balance: 0.00,
+          totalEarnings: 0.00,
+          referralCode: '',
+          role: 'user'
+        });
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -121,7 +131,6 @@ const App: React.FC = () => {
               <Route path="/referral" element={<Referral user={user} />} />
               <Route path="/withdraw" element={<Withdraw user={user} setUser={setUser} />} />
               
-              {/* حماية مسار الأدمن بصرامة */}
               <Route 
                 path="/admin/*" 
                 element={
@@ -142,7 +151,6 @@ const App: React.FC = () => {
             <BottomNavLink to="/referral" icon={<Users size={24} />} label="الإحالة" />
             <BottomNavLink to="/withdraw" icon={<ArrowUpRight size={24} />} label="السحب" />
             
-            {/* يظهر زر الأدمن فقط إذا كان المستخدم هو صاحب البريد المحدد */}
             {user.role === 'admin' ? (
               <BottomNavLink to="/admin" icon={<ShieldCheck size={24} />} label="الأدمن" />
             ) : (
